@@ -1,4 +1,8 @@
-import { Component, signal, computed, effect } from '@angular/core';
+ import { Component, signal, computed, effect } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+
+
 import { Produto } from '../produto/produto';
 
 @Component({
@@ -11,11 +15,10 @@ export class ListaProdutos {
   //SIGNALS
 
   //writable signal - signal (reativo) que permite alterações (com set ou update)
-  produtos = signal([
-    { nome: 'Notebook', preco: 3800 },
-    { nome: 'Mouse', preco: 179 },
-    { nome: 'Fone', preco: 80 },
-  ]);
+
+  produtos = signal<{ nome: string; preco: number }[]>([]);
+
+  carregando = signal(true);
 
   produtoSelecionado = signal<string | null>(null);
 
@@ -38,26 +41,54 @@ export class ListaProdutos {
 
   // EFFECTS
   //método construtor - formata os objetos criados a partir desta classe
-  constructor() {
-    // estes 2 effects geram mensagens no terminal sempre que alterações são realizadas.
-    // effect observa alterações realizadas no signal (que é o vetor de produtos)
+ 
+ constructor(private http: HttpClient) {
+    // carrega da API
+    this.carregarProdutos();
+
+    // effects continuam iguais
     effect(() => {
       console.log('Lista de produtos alterada:', this.produtos());
     });
 
-    // effect observa alterações do computed signal (valorTotal).
     effect(() => {
       console.log('Valor total atualizado:', this.valorTotal());
     });
-
-    // efect observa o tittle da página e altera se a condição for atendida
     effect(() => {
       if (typeof document !== 'undefined') {
         document.title = `(${this.totalProdutos()}) Minha Loja`;
       }
     });
-  } //fim do constructor
+  }
 
+    //fim do costrutor
+
+    carregarProdutos() {
+    // inicia loading
+    this.carregando.set(true);
+
+    this.http
+      .get<{ title: string; price: number }[]>('https://fakestoreapi.com/products')
+      .subscribe({
+        next: (dados) => {
+          // Adaptação da API para o nosso projeto
+          const produtosFormatados = dados.map((p) => ({
+            nome: p.title,
+            preco: p.price,
+          }));
+
+          this.produtos.set(produtosFormatados);
+          this.carregando.set(false); // finaliza loading
+        },
+
+        error: (erro) => {
+          console.error('Erro ao carregar produtos:', erro);
+          this.carregando.set(false); // evita loading infinito
+        },
+      });
+  }
+  
+  
   // AÇÕES QUE ALTERAM VALORES DE SIGNALS (SET E UPDATE)
 
   exibirProduto(nome: string) {
@@ -75,3 +106,4 @@ export class ListaProdutos {
     this.carrinho.update((listaAtual) => [...listaAtual, produto]);
   }
 }
+
