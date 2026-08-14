@@ -17,7 +17,12 @@
     <p>Total de produtos: {{ totalProdutos() }}</p>
     <hr />
     @for (item of produtos(); track $index) {
-      <app-produto [nome]="item.nome" [preco]="item.preco" />
+      <app-produto
+        [nome]="item.nome"
+        [preco]="item.preco"
+        (produtoSelecionado)="exibirProduto($event)"
+        (produtoAdicionado)="adicionarAoCarrinho($event)"
+      />
     }
   }
 
@@ -36,7 +41,7 @@
 
   <h2>Total de produtos: {{ totalProdutos() }}</h2>
 
-  <h3>Valor total: R$ {{ valorTotal() }}</h3>
+  <h3>Valor total: R$ {{ valorTotal().toFixed(2) }}</h3>
 </section>
 
 <!-- Seção do Carrinho -->
@@ -52,3 +57,5 @@
   <p><strong>Itens no carrinho:</strong> {{ quantidadeCarrinho() }}</p>
   <p><strong>Total do Carrinho:</strong> R$ {{ totalCarrinho().toFixed(2) }}</p>
 </section>
+
+
