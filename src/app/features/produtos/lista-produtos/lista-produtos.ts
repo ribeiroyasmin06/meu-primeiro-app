@@ -24,6 +24,9 @@ export class ListaProdutos {
 
   carrinho = signal<{ nome: string; preco: number }[]>([]);
 
+  erro = signal<string | null>(null);
+
+
   // COMPUTED SIGNALS
 
   // computed signal - observa outro signal e se atualiza automaticamente
@@ -66,7 +69,7 @@ export class ListaProdutos {
     carregarProdutos() {
     // inicia loading
     this.carregando.set(true);
-
+     this.erro.set(null); // limpa erro anterior
     this.http
       .get<{ title: string; price: number }[]>('https://fakestoreapi.com/products')
       .subscribe({
@@ -83,6 +86,8 @@ export class ListaProdutos {
 
         error: (erro) => {
           console.error('Erro ao carregar produtos:', erro);
+          this.erro.set('Erro ao carregar produtos. Verifique sua conexão e tente novamente.');
+
           this.carregando.set(false); // evita loading infinito
         },
       });
