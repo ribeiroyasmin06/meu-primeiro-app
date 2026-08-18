@@ -1,5 +1,7 @@
 import { authGuard } from './core/auth.guard';
+import { adminGuard } from './core/admin.guard';
 import { Routes } from '@angular/router';
+
 
 export const routes: Routes = [
   // Lazy Loading -> só aparece os produtos se eu "clicar" neles
@@ -23,10 +25,18 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/checkout/checkout/checkout').then((m) => m.Checkout),
   },
+
+{
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./features/admin/admin/admin').then((m) => m.Admin),
+  },
+
   {
     path: 'login',
     loadComponent: () => import('./features/login/login/login').then((m) => m.Login),
   },
+
 
   {
     path: '**',
