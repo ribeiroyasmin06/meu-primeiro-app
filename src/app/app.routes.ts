@@ -1,23 +1,36 @@
+import { authGuard } from './core/auth.guard';
 import { Routes } from '@angular/router';
-  import { ListaProdutos } from './features/produtos/lista-produtos/lista-produtos';
-  import { Carrinho } from './features/carrinho/carrinho/carrinho';
 
-  
-
-  export const routes: Routes = [
-    {
-      path: '',
-      component: ListaProdutos,
-    },
-    {
-      path: 'carrinho',
-      component: Carrinho,
-    },
-    
+export const routes: Routes = [
+  // Lazy Loading -> só aparece os produtos se eu "clicar" neles
   {
-    path: 'checkout',
-    loadComponent: () => import('./features/checkout/checkout/checkout').then((m) => m.Checkout),
+    path: '',
+    loadComponent: () => import('./features/home/home/home').then((m) => m.Home),
+  },
+  {
+    path: 'produtos',
+    loadComponent: () =>
+      import('./features/produtos/lista-produtos/lista-produtos').then((m) => m.ListaProdutos),
+  },
+  {
+    path: 'carrinho',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/carrinho/carrinho/carrinho').then((m) => m.Carrinho),
   },
 
+  {
+    path: 'checkout',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/checkout/checkout/checkout').then((m) => m.Checkout),
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./features/login/login/login').then((m) => m.Login),
+  },
 
-  ];
+  {
+    path: '**',
+    redirectTo: '',
+  },
+];
+
